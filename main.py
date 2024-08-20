@@ -217,7 +217,7 @@ async def on_user_start(message: Message):
 
 async def bot_info(message: Message):
     await message.answer(
-        f"🤖 Bot is currently being used in:\n- {bot_stats['users']} users\n- {len(bot_stats['chats'])} chats"
+        f"🤖 Bot is currently being used in:\n\n- {bot_stats['users']} users\n- {len(bot_stats['chats'])} chats"
     )
 
 
