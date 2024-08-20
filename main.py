@@ -42,9 +42,9 @@ async def main():
     dp.include_router(router)
 
     dp.message.register(on_user_start, CommandStart())
-    dp.message.register(ban_user, Command("ban"), IsGroupAdmin())
-    dp.message.register(spam_user, Command("spam"), IsGroupAdmin())
-    dp.message.register(bot_info, Command("info"))
+    dp.message.register(ban_user, Command("ban"))
+    dp.message.register(spam_user, Command("spam"))
+    dp.message.register(bot_info, Command("info"))  # This is where bot_info is registered
     router.message.register(admin_broadcast, Command("admin"), IsAdminFilter(ADMIN_ID))
     dp.message.register(list_banned_users, Command("banned"))
     dp.message.register(delete_system_messages, F.content_type.in_([
@@ -54,10 +54,6 @@ async def main():
         ContentType.SUPERGROUP_CHAT_CREATED,
         ContentType.CHANNEL_CHAT_CREATED
     ]))
-    dp.message.register(on_chat_added, F.content_type == ContentType.NEW_CHAT_MEMBERS)
-    dp.message.register(on_chat_added, F.content_type == ContentType.GROUP_CHAT_CREATED)
-    dp.message.register(on_chat_added, F.content_type == ContentType.SUPERGROUP_CHAT_CREATED)
-    dp.chat_member.register(on_chat_status_change)
 
     await bot.set_my_commands([
         BotCommand(command="/start", description="Start the bot"),
@@ -67,7 +63,6 @@ async def main():
         BotCommand(command="/admin", description="Admin broadcast"),
         BotCommand(command="/banned", description="List banned users")
     ])
-
     try:
         await dp.start_polling(bot)
     except KeyboardInterrupt:
@@ -218,6 +213,13 @@ async def on_user_start(message: Message):
         "👋 Welcome! This bot helps to manage your group efficiently.\nClick the button below to join as an admin.",
         reply_markup=inline_keyboard
     )
+
+
+async def bot_info(message: Message):
+    await message.answer(
+        f"🤖 Bot is currently being used in:\n- {bot_stats['users']} users\n- {len(bot_stats['chats'])} chats"
+    )
+
 
 if __name__ == "__main__":
     asyncio.run(main())
