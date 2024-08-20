@@ -44,7 +44,7 @@ async def main():
     dp.message.register(on_user_start, CommandStart())
     dp.message.register(ban_user, Command("ban"))
     dp.message.register(spam_user, Command("spam"))
-    dp.message.register(bot_info, Command("info"))  # Registering bot_info properly now
+    dp.message.register(bot_info, Command("info"))  # This is where bot_info is registered
     router.message.register(admin_broadcast, Command("admin"), IsAdminFilter(ADMIN_ID))
     dp.message.register(list_banned_users, Command("banned"))
     dp.message.register(delete_system_messages, F.content_type.in_([
@@ -70,11 +70,8 @@ async def main():
     finally:
         await bot.session.close()
 
-
-async def bot_info(message: Message):
-    await message.answer(
-        f"🤖 Bot is currently being used in:\n\n- {bot_stats['users']} users\n- {len(bot_stats['chats'])} chats"
-    )
+async def delete_system_messages(message: Message):
+    await message.delete()
 
 
 
@@ -216,6 +213,11 @@ async def on_user_start(message: Message):
         reply_markup=inline_keyboard
     )
 
+
+async def bot_info(message: Message):
+    await message.answer(
+        f"🤖 Bot is currently being used in:\n\n- {bot_stats['users']} users\n- {len(bot_stats['chats'])} chats"
+    )
 
 
 if __name__ == "__main__":
