@@ -50,6 +50,7 @@ async def main():
     dp.message.register(on_chat_added, F.content_type == ContentType.NEW_CHAT_MEMBERS)
     dp.message.register(on_chat_added, F.content_type == ContentType.GROUP_CHAT_CREATED)
     dp.message.register(on_chat_added, F.content_type == ContentType.SUPERGROUP_CHAT_CREATED)
+    dp.chat_member.register(on_chat_status_change)
 
     await bot.set_my_commands([
         BotCommand(command="/start", description="Start the bot"),
@@ -160,6 +161,21 @@ async def list_banned_users(message: Message):
         return
     banned_list = "\n".join([f"• {user_id}" for user_id in banned_users[chat_id]])
     await message.answer(f"🔒 Banned users:\n{banned_list}")
+
+
+async def on_chat_status_change(event: ChatMemberUpdated):
+    chat_id = event.chat.id
+
+    if event.new_chat_member.status == ChatMemberStatus.MEMBER:
+        bot_stats['chats'].add(chat_id)
+        logging.info(f"Bot added to a new chat: {chat_id}. Total chats: {len(bot_stats['chats'])}")
+    elif event.new_chat_member.status == ChatMemberStatus.KICKED or event.new_chat_member.status == ChatMemberStatus.LEFT:
+      
+        if chat_id in bot_stats['chats']:
+            bot_stats['chats'].remove(chat_id)
+            logging.info(f"Bot removed from chat: {chat_id}. Total chats: {len(bot_stats['chats'])}")
+
+
 
 async def on_chat_added(message: Message):
     chat_id = message.chat.id
