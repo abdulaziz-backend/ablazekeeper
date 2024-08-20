@@ -5,7 +5,8 @@ from aiogram.enums import ContentType
 from aiogram.filters import Command, CommandStart
 from aiogram.types import Message, BotCommand, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.filters import BaseFilter
-
+from aiogram.types import ChatMemberUpdated
+from aiogram.enums import ChatMemberStatus
 
 router = Router()
 
