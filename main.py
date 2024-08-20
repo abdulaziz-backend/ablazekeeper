@@ -11,7 +11,7 @@ router = Router()
 
 ADMIN_ID = 6236467772 
 API_TOKEN = '6846608037:AAEQYLvOXyxSTj3bwAk5cZywfs9WebDkzbo' 
-WEBHOOK_URL = 'https://your-vercel-deployment-url.vercel.app/webhook'  
+WEBHOOK_URL = 'https://ablazekeeper.vercel.app/webhook'  
 
 logging.basicConfig(level=logging.INFO)
 
