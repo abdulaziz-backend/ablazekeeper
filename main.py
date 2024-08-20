@@ -75,27 +75,26 @@ async def delete_system_messages(message: Message):
 
 
 
-async def ban_user(message: Message, bot: Bot):
-    chat_member = await message.bot.get_chat_member(message.chat.id, message.from_user.id)
-    
-    if not chat_member.is_chat_admin() and chat_member.status != ChatMemberStatus.OWNER:
-        await message.answer("⚠️ Only admins or the group owner can use this command.")
-        return
-
+async def ban_user(message: Message):
     if not message.reply_to_message:
         await message.answer("⚠️ Please reply to a user's message to ban them.")
         return
-    
     user_to_ban = message.reply_to_message.from_user
     chat_id = message.chat.id
-    await message.bot.ban_chat_member(chat_id, user_to_ban.id)
     
-    if chat_id not in banned_users:
-        banned_users[chat_id] = []
-    banned_users[chat_id].append(user_to_ban.id)
+    logging.info(f"Trying to ban user {user_to_ban.id} in chat {chat_id}")
     
-    await message.answer(f"🚫 {user_to_ban.username} has been banned from the group.\nUser ID: {user_to_ban.id}")
-
+    try:
+        await message.bot.ban_chat_member(chat_id, user_to_ban.id)
+        if chat_id not in banned_users:
+            banned_users[chat_id] = []
+        banned_users[chat_id].append(user_to_ban.id)
+        await message.answer(
+            f"🚫 {user_to_ban.username} has been banned from the group.\nUser ID: {user_to_ban.id}"
+        )
+    except Exception as e:
+        logging.error(f"Failed to ban user {user_to_ban.id}: {e}")
+        await message.answer(f"❌ Failed to ban user {user_to_ban.username}.")
 
 
 async def spam_user(message: Message, bot: Bot):
