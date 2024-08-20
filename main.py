@@ -174,7 +174,8 @@ async def on_user_start(message: Message):
     bot_stats['users'] += 1
     inline_keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text="➕", url="http://t.me/chat_blazer_bot?startgroup=start")]
+            [InlineKeyboardButton(text="➕", url="http://t.me/chat_blazer_bot?startgroup=start"),
+            InlineKeyboardButton(text="📢 Join Updates Channel", url="https://t.me/blazer_news")]
         ]
     )
     await message.answer(
