@@ -21,6 +21,12 @@ bot_stats = {
     "chats": set()  
 }
 
+class IsGroupAdmin(BaseFilter):
+    async def __call__(self, message: Message) -> bool:
+        chat_member = await message.bot.get_chat_member(message.chat.id, message.from_user.id)
+        return chat_member.is_chat_admin() or chat_member.status == ChatMemberStatus.OWNER
+
+
 class IsAdminFilter(BaseFilter):
     def __init__(self, admin_id: int):
         self.admin_id = admin_id
@@ -36,8 +42,8 @@ async def main():
     dp.include_router(router)
 
     dp.message.register(on_user_start, CommandStart())
-    dp.message.register(ban_user, Command("ban"))
-    dp.message.register(spam_user, Command("spam"))
+    dp.message.register(ban_user, Command("ban"), IsGroupAdmin())
+    dp.message.register(spam_user, Command("spam"), IsGroupAdmin())
     dp.message.register(bot_info, Command("info"))
     router.message.register(admin_broadcast, Command("admin"), IsAdminFilter(ADMIN_ID))
     dp.message.register(list_banned_users, Command("banned"))
@@ -72,37 +78,50 @@ async def main():
 async def delete_system_messages(message: Message):
     await message.delete()
 
-async def ban_user(message: Message):
+
+
+async def ban_user(message: Message, bot: Bot):
+    chat_member = await message.bot.get_chat_member(message.chat.id, message.from_user.id)
+    
+    if not chat_member.is_chat_admin() and chat_member.status != ChatMemberStatus.OWNER:
+        await message.answer("⚠️ Only admins or the group owner can use this command.")
+        return
+
     if not message.reply_to_message:
         await message.answer("⚠️ Please reply to a user's message to ban them.")
         return
+    
     user_to_ban = message.reply_to_message.from_user
     chat_id = message.chat.id
     await message.bot.ban_chat_member(chat_id, user_to_ban.id)
+    
     if chat_id not in banned_users:
         banned_users[chat_id] = []
     banned_users[chat_id].append(user_to_ban.id)
-    await message.answer(
-        f"🚫 {user_to_ban.username} has been banned from the group.\nUser ID: {user_to_ban.id}"
-    )
+    
+    await message.answer(f"🚫 {user_to_ban.username} has been banned from the group.\nUser ID: {user_to_ban.id}")
 
-async def spam_user(message: Message):
+
+
+async def spam_user(message: Message, bot: Bot):
+    chat_member = await message.bot.get_chat_member(message.chat.id, message.from_user.id)
+    
+    if not chat_member.is_chat_admin() and chat_member.status != ChatMemberStatus.OWNER:
+        await message.answer("⚠️ Only admins or the group owner can use this command.")
+        return
+
     if not message.reply_to_message:
         await message.answer("⚠️ Please reply to a user's message to spam them.")
         return
+    
     user_to_spam = message.reply_to_message.from_user
-    chat_id = message.chat.id
     spam_message = "🚨 Spam Message 🚨"
+    
     for _ in range(10):
         await message.bot.send_message(user_to_spam.id, spam_message)
-    await message.answer(
-        f"💬 Sent spam messages to {user_to_spam.username}.\nUser ID: {user_to_spam.id}"
-    )
+    
+    await message.answer(f"💬 Sent spam messages to {user_to_spam.username}.\nUser ID: {user_to_spam.id}")
 
-async def bot_info(message: Message):
-    await message.answer(
-        f"🤖 Bot is currently being used in:\n- {bot_stats['users']} users\n- {len(bot_stats['chats'])} chats"
-    )
 
 @router.message(Command("admin"), IsAdminFilter(ADMIN_ID))
 async def admin_broadcast(message: Message):
