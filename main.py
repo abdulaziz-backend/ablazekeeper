@@ -5,20 +5,19 @@ from aiogram.enums import ContentType
 from aiogram.filters import Command, CommandStart
 from aiogram.types import Message, BotCommand, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.filters import BaseFilter
-from aiohttp import web
+
 
 router = Router()
 
 ADMIN_ID = 6236467772 
-API_TOKEN = '6846608037:AAEQYLvOXyxSTj3bwAk5cZywfs9WebDkzbo' 
-WEBHOOK_URL = 'https://ablazekeeper.vercel.app/webhook'  
+API_TOKEN = '6846608037:AAEQYLvOXyxSTj3bwAk5cZywfs9WebDkzbo'  
 
 logging.basicConfig(level=logging.INFO)
 
 banned_users = {}
 bot_stats = {
     "users": 683,
-    "chats": set()
+    "chats": set()  
 }
 
 class IsAdminFilter(BaseFilter):
@@ -29,10 +28,6 @@ class IsAdminFilter(BaseFilter):
         is_admin = message.from_user.id == self.admin_id
         logging.info(f"Is Admin Check: {is_admin}")
         return is_admin
-
-async def setup_webhook(bot: Bot):
-    await bot.set_webhook(WEBHOOK_URL)
-    logging.info("Webhook set successfully.")
 
 async def main():
     bot = Bot(token=API_TOKEN)
@@ -65,28 +60,12 @@ async def main():
         BotCommand(command="/banned", description="List banned users")
     ])
 
-    await setup_webhook(bot)
-
-    app = web.Application()
-    app.router.add_post('/webhook', handle_update)
-    runner = web.AppRunner(app)
-    await runner.setup()
-    site = web.TCPSite(runner, '0.0.0.0', 8080)
-    await site.start()
-
     try:
-        while True:
-            await asyncio.sleep(3600)  # Run forever
+        await dp.start_polling(bot)
     except KeyboardInterrupt:
         logging.warning("Bot has been turned off")
     finally:
         await bot.session.close()
-
-async def handle_update(request: web.Request):
-    json_data = await request.json()
-    update = types.Update(**json_data)
-    Dispatcher.get_current().process_update(update)
-    return web.Response()
 
 async def delete_system_messages(message: Message):
     await message.delete()
@@ -102,7 +81,7 @@ async def ban_user(message: Message):
         banned_users[chat_id] = []
     banned_users[chat_id].append(user_to_ban.id)
     await message.answer(
-        f"🚫 {user_to_ban.username} has been banned from the group.\nUser ID: `{user_to_ban.id}`"
+        f"🚫 {user_to_ban.username} has been banned from the group.\nUser ID: {user_to_ban.id}"
     )
 
 async def spam_user(message: Message):
@@ -115,7 +94,7 @@ async def spam_user(message: Message):
     for _ in range(10):
         await message.bot.send_message(user_to_spam.id, spam_message)
     await message.answer(
-        f"💬 Sent spam messages to {user_to_spam.username}.\nUser ID: `{user_to_spam.id}`"
+        f"💬 Sent spam messages to {user_to_spam.username}.\nUser ID: {user_to_spam.id}"
     )
 
 async def bot_info(message: Message):
@@ -167,7 +146,7 @@ async def admin_broadcast(message: Message):
 
                 else:
                     await message.answer("⚠️ Unsupported content type for broadcast.")
-                
+                    
         except Exception as e:
             logging.error(f"Failed to send broadcast to chat_id {chat_id}: {e}")
             await message.answer(f"❌ An error occurred while sending the broadcast to chat {chat_id}.")
