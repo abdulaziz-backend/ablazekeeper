@@ -151,7 +151,7 @@ async def main():
     dp.message.register(delete_system_messages, F.content_type.in_([
         ContentType.NEW_CHAT_MEMBERS,
         ContentType.LEFT_CHAT_MEMBER,
-        ontentType.GROUP_CHAT_CREATED,
+        ContentType.GROUP_CHAT_CREATED,
         ContentType.SUPERGROUP_CHAT_CREATED,
         ContentType.CHANNEL_CHAT_CREATED
     ]))
