@@ -11,7 +11,7 @@ from aiogram.enums import ChatMemberStatus
 router = Router()
 
 ADMIN_ID = 6236467772
-API_TOKEN = 'YOUR_API_TOKEN_HERE'
+API_TOKEN = '6846608037:AAEQYLvOXyxSTj3bwAk5cZywfs9WebDkzbo'
 
 logging.basicConfig(level=logging.INFO)
 
