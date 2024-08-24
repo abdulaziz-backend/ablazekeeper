@@ -9,17 +9,13 @@ from aiogram.filters import BaseFilter
 from aiogram.types import ChatMemberUpdated
 from aiogram.enums import ChatMemberStatus
 
-# Create the router for handling commands and messages
 router = Router()
 
-# Admin ID and API token
 ADMIN_ID = 6236467772
 API_TOKEN = '6846608037:AAEQYLvOXyxSTj3bwAk5cZywfs9WebDkzbo'
 
-# Set up logging
 logging.basicConfig(level=logging.INFO)
 
-# Dictionaries to manage banned users and bot stats
 banned_users = {}
 bot_stats = {
     "users": [],
@@ -177,7 +173,6 @@ async def main():
         BotCommand(command="/banned", description="List banned users")
     ])
 
-    # Ignore SIGTERM and SIGINT
     signal.signal(signal.SIGTERM, signal.SIG_IGN)
     signal.signal(signal.SIGINT, signal.SIG_IGN)
 
