@@ -177,18 +177,14 @@ async def main():
         BotCommand(command="/banned", description="List banned users")
     ])
 
-    # Signal handling
-    def signal_handler(sig, frame):
-        logging.warning(f"Signal {sig} received. Ignoring it.")
-
     # Ignore SIGTERM and SIGINT
-    signal.signal(signal.SIGTERM, signal_handler)
-    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal.SIG_IGN)
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
 
     try:
         await dp.start_polling(bot)
-    except KeyboardInterrupt:
-        logging.warning("Bot has been turned off")
+    except Exception as e:
+        logging.error(f"Polling interrupted: {e}")
     finally:
         await bot.session.close()
 
